@@ -1,3 +1,5 @@
+# Attention work in progress
+
 # Sauna-controller
 Sauna Controller with esp8266 and [ESPHome](https://esphome.io/) for a integration in [Home Assistant](https://www.home-assistant.io/) 
 There are many cases to automate a Sauna ;-).
