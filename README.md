@@ -24,7 +24,7 @@ The integreation is done with Home Assistant. The controller itself is build aro
 - easy to build
 - easy to use
 - 
-
+![Home Assistant](images/frontpanel.PNG)
 
 # components
 There are only a few components needed:
