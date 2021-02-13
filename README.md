@@ -52,7 +52,9 @@ controlls the heater
 switch off the sauna if the door is to long open
 calculate the power and the energy you need for the sauna
 ...
-
+# circuit diagram
+this is very easy. Normaly its not needed and the ESPHome yaml file is enough. But for reference the circuit diagramm:
+![circuit diagram](Sauna_controller_Schaltplan.png)
 
 # things to do
 There is no timer yet to get the time like a sand clock. A sand clock with WS2812 and the door sensor would be nice.
