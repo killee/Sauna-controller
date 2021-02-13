@@ -1,0 +1,308 @@
+substitutions:
+  devicename: saunakille
+  user: Kille
+  fullname: Killes Sauna
+  max_power_generic: "1.0"
+  #power of the sauna oven (kw dividet 100)
+  power_of_sauna_oven: "0.075"
+
+esphome:
+  name: $devicename
+  platform: ESP8266
+  board: d1_mini
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: ${devicename} Fallback Hotspot"
+    password: !secret wifi_password
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: !secret esp_password
+
+ota:
+  password: !secret esp_password
+  
+web_server:
+  port: 80
+
+#Pinmapping
+#D0 Sauna oven
+#D1 SCL
+#D2 SDA
+#D3 dallas
+#D4 WS2812
+#D5 DHT22
+#D6 door reed contact
+
+globals:
+  - id: count_global_int
+    type: int
+    restore_value: no
+    initial_value: '0'
+  - id: count_global_door_int
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+#the SSR relays for the sauna oven. They are switchted with a BC847 
+output:
+  - platform: slow_pwm
+    pin: D0
+    id: sauna_ofen_pwm
+    period: 60s    
+
+switch:
+  - platform: template
+    name:  ${user} Sauna PID Climate Autotune
+    turn_on_action:
+      - climate.pid.autotune: sauna_climate    
+
+
+dallas:
+  - pin: D3
+    update_interval: 10s
+
+i2c:
+  sda: D2
+  scl: D1
+  scan: True
+  id: bus_a
+
+
+# Individual sensors
+sensor:
+  - platform: dallas
+    address: 0xD60516A1D5F6FF28 #Sensor on the seeling near by oven
+    name: ${user} Sauna Temperatur direkt in der Sauna
+    id: sauna_temp
+  - platform: dallas
+    address: 0x11012042F8B5E128 #Sensor in the Sauna lamp 
+    name: ${user} Sauna Temperatur in Sauna Lampe
+  - platform: dallas
+    address: 0x8D0316A1D0C4FF28 #in the electronic at the SSR Relais
+    name: ${user} Sauna Temperatur in Sauna Steuerung
+  - platform: dallas
+    address: 0x07012042F262F228 #at a bench
+    name: ${user} Sauna Temperatur an der Bank
+
+  - platform: bme280 #a sensor in the room of the Sauna
+    temperature:
+      name: ${user} Sauna Zimmer Temperatur
+      oversampling: 16x
+      id: bme280_temperature
+    pressure:
+      name: ${user} Sauna Zimmer Luftdruck
+      id: bme280_pressure
+    humidity:
+      name: ${user} Sauna Zimmer Luftfeuchte
+      id: bme280_humidity
+    address: 0x76
+    update_interval: 60s
+  - platform: template
+    name: ${user} Sauna Zimmer Berechnete Höhe
+    lambda: |-
+      const float STANDARD_SEA_LEVEL_PRESSURE = 1013.25; //in hPa, see note
+      return ((id(bme280_temperature).state + 273.15) / 0.0065) *
+        (powf((STANDARD_SEA_LEVEL_PRESSURE / id(bme280_pressure).state), 0.190234) - 1); // in meter
+    update_interval: 60s
+    icon: 'mdi:signal'
+    unit_of_measurement: 'm'
+  - platform: template
+    name: ${user} Sauna Zimmer Absolute Humidity
+    lambda: |-
+      const float mw = 18.01534;    // molar mass of water g/mol
+      const float r = 8.31447215;   // Universal gas constant J/mol/K
+      return (6.112 * powf(2.718281828, (17.67 * id(bme280_temperature).state) /
+        (id(bme280_temperature).state + 243.5)) * id(bme280_humidity).state * mw) /
+        ((273.15 + id(bme280_temperature).state) * r); // in grams/m^3
+    accuracy_decimals: 2
+    update_interval: 60s
+    icon: 'mdi:water'
+    unit_of_measurement: 'g/m³'
+  - platform: template
+    name: ${user} Sauna Zimmer Tau Punkt
+    lambda: return (243.5*(log(id(bme280_humidity).state/100)+((17.67*id(bme280_temperature).state)/(243.5+id(bme280_temperature).state)))/(17.67-log(id(bme280_humidity).state/100)-((17.67*id(bme280_temperature).state)/(243.5+id(bme280_temperature).state))));
+    unit_of_measurement: °C
+    icon: 'mdi:thermometer-alert'
+  - platform: dht #a sensor in the gap beetween the sauna wall and the wall of the room
+    model: dht22    
+    pin: D5
+    temperature:
+      name: ${user} Sauna Zwischenwand Temperatur
+      id: dht22_temperature
+    humidity:
+      name: ${user} Sauna Zwischenwand Luftfeuchte
+      id: dht22_humidity
+  - platform: template
+    name: ${user} Sauna Zwischenwand Tau Punkt
+    lambda: return (243.5*(log(id(dht22_humidity).state/100)+((17.67*id(dht22_temperature).state)/(243.5+id(dht22_temperature).state)))/(17.67-log(id(dht22_humidity).state/100)-((17.67*id(dht22_temperature).state)/(243.5+id(dht22_temperature).state))));
+    unit_of_measurement: °C
+    icon: 'mdi:thermometer-alert'
+    update_interval: 60s
+  - platform: template #gives the counter without a change back to HA (for debugging or so)
+    name: ${user} Sauna Counter
+    unit_of_measurement: 'min'
+    lambda: |-
+      return id(count_global_int); 
+
+  - platform: pid
+    climate_id: sauna_climate
+    name: ${user} Sauna PID Climate Result PROPORTIONAL
+    type: PROPORTIONAL
+  - platform: pid
+    climate_id: sauna_climate
+    name: ${user} Sauna PID Climate Result INTEGRAL 
+    type: INTEGRAL 
+  - platform: pid
+    climate_id: sauna_climate
+    name: ${user} Sauna PID Climate Result DERIVATIVE 
+    type: DERIVATIVE 
+  - platform: pid
+    climate_id: sauna_climate
+    name: ${user} Sauna PID Climate Result HEAT 
+    id: generic_power
+    type: HEAT 
+  
+  - platform: pid
+    climate_id: sauna_climate
+    name: ${user} Sauna current power
+    type: HEAT
+    filters:
+      - multiply: ${power_of_sauna_oven}
+    unit_of_measurement: 'kW'
+    id: power_of_sauna
+
+  - platform: total_daily_energy
+    name: ${user} Sauna energy
+    unit_of_measurement: 'kWh'
+    power_id: power_of_sauna
+
+  - platform: wifi_signal
+    name: ${devicename} WiFi Signal Sensor
+    update_interval: 60s
+  
+binary_sensor:
+  - platform: gpio #reed contact at the door -> resets a timer not really needed
+    pin:
+      number: D6
+      mode: INPUT_PULLUP
+      #inverted: True
+    name: ${user} Sauna Tür
+    device_class: "door"
+    id: door_sensor
+    filters:
+      - delayed_on_off: 100ms
+    on_release:
+      then:
+          - lambda: |-
+              id(count_global_int)=0;
+
+  - platform: template #switch on if sauna reaches target temperatur
+    name: ${user} Sauna bereit
+    device_class: "heat"
+    id: sauna_ready
+
+  - platform: status
+    name: ${user} Sauna
+
+light:
+  - platform: neopixelbus #fancy lamp for sauna
+    method: ESP8266_UART1
+    variant: WS2812
+    type: GRB
+    pin: D4
+    num_leds: 133
+    name: ${user} Sauna Licht
+    id: sauna_licht
+    effects:
+      - random:
+      - strobe:
+      - addressable_rainbow:
+      - addressable_twinkle:
+      - addressable_color_wipe:
+      - addressable_scan:
+      - addressable_twinkle:
+          name: Twinkle Effect With Custom Values
+          twinkle_probability: 15%
+          progress_interval: 4ms
+      - addressable_random_twinkle:
+      - addressable_fireworks:
+      - addressable_fireworks:
+          name: Fireworks Effect With Custom Values
+          update_interval: 32ms
+          spark_probability: 40%
+          use_random_color: false
+          fade_out_rate: 120
+
+#every minute a event is fired, to switch the Sauna off after 90min without opening the door
+#If the door is open for more than 5min switch off the sauna
+time:
+  - platform: sntp
+    # ...
+    on_time:
+      # Every minut
+      - seconds: 0
+        minutes: /1
+        then:
+          - lambda: |-
+              if (id(sauna_climate).mode==climate::CLIMATE_MODE_OFF) {
+                id(count_global_int)=0;
+                id(sauna_ready).publish_state(false);
+              }else{
+                id(count_global_int)++;
+                if (!id(door_sensor).state) {
+                  id(count_global_door_int)=0;
+                }else{
+                  //If the door is open for more than 5min switch off the sauna
+                  id(count_global_door_int)++;
+                  if (id(count_global_door_int)>5){
+                    auto call = id(sauna_climate).make_call();
+                    call.set_mode("OFF");
+                    call.perform();
+                  }
+                }
+                if (id(sauna_climate).current_temperature > id(sauna_climate).target_temperature){
+                  //reset the timer after reaching the target temperature
+                  if (id(sauna_ready).state==false){
+                    id(count_global_int)=0;
+                  }
+                  id(sauna_ready).publish_state(true);
+                }
+              }
+              if (id(count_global_int) > 90){
+                auto call = id(sauna_climate).make_call();
+                call.set_mode("OFF");
+                call.perform();
+              }
+#                
+
+climate:
+
+  - platform: pid #parameters suitable for my sauna with 7kw oven and about 1.7x1.6x2.2m^3
+    id: sauna_climate
+    name: ${user} Sauna Steuerung
+    sensor: sauna_temp
+    default_target_temperature: 75 °C
+    #hysteresis: 1 °C
+    #default_target_temperature_high: 60 °C
+    heat_output: sauna_ofen_pwm
+    control_parameters:
+      kp: 0.17181
+      ki: 0.00015
+      kd: 75.09859
+
+    visual:
+      min_temperature: 10 °C
+      max_temperature: 100 °C
+      temperature_step: 1 °C
+
