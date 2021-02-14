@@ -25,7 +25,6 @@ The integreation is done with Home Assistant. The controller itself is build aro
 - easy to use
 - 
 
-| ![Home Assistant](images/frontpanel.PNG) | ![Sauna Controller](images/IMG_20210213_231354.jpg) | ![Sauna](images/IMG_20210213_231555.jpg) |
 ![Home Assistant](images/frontpanel.PNG)
 ![Sauna Controller](images/IMG_20210213_231354.jpg)
 ![Sauna](images/IMG_20210213_231555.jpg)
