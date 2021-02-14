@@ -25,6 +25,13 @@ The integreation is done with Home Assistant. The controller itself is build aro
 - easy to use
 - 
 
+| Objekt-Typ | Regel | Beispiel |
+|:---|:---|:---|
+| Technische Schlüsselspalte | ID | employee.id |
+| Fremdschlüsselspalte | \<TabellenKürzel\>\_ID,<br />\<TabellenKürzel\>\_\<Qualifikation\>\_ID | employee.dep_id<br />_\<TabellenKürzel\> der referenzierten Tabelle<br />\<Qualifikation\> bei mehreren Referenzen._ |
+| Auditing-Spalte,<br />Erstellungsdatum | CREATED_DATE | employee.created_date |
+| Auditing-Spalte,<br />Änderungsdatum | MODIFIED_DATE | employee.modified_date |
+
 ![Home Assistant](images/frontpanel.PNG)
 ![Sauna Controller](images/IMG_20210213_231354.jpg)
 ![Sauna](images/IMG_20210213_231555.jpg)
