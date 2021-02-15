@@ -2,15 +2,11 @@
 
 # Sauna-controller
 Sauna Controller with esp8266 and [ESPHome](https://esphome.io/) for a integration in [Home Assistant](https://www.home-assistant.io/) 
-There are many cases to automate a Sauna ;-).
 
-
-In my case I've build up the hole Sauna. Nothing existed. I decided to build up the controller by myself.
 The big advantage you get for about 60€ a sauna controller that is awesome!
-To start from nothing this one is a bit different.
 
-The sauna controller is build up from scratch. 
-The integreation is done with Home Assistant. The controller itself is build around the awesome [ESPHome](https://esphome.io/).
+The sauna controller is build up from scratch. No additional components are needed.
+The integration is done with Home Assistant. The controller itself is built around the awesome [ESPHome](https://esphome.io/).
 
 # features
 - real PID controller
@@ -23,15 +19,13 @@ The integreation is done with Home Assistant. The controller itself is build aro
 - reliable
 - easy to build
 - easy to use
+- open source
+
+If you find a sauna controller with more features give me a hint ;-)!
 
 ![Home Assistant](images/frontpanel.PNG)
 ![Sauna Controller](images/IMG_20210213_231354.jpg)
 ![Sauna](images/IMG_20210215_214026.jpg)
-
-
-
-# components
-There are only a few components needed:
 
 
 # components
@@ -69,7 +63,8 @@ I measure the temperature and humidity between the sauna wall and the room wall.
 
 # Sauna lamp 
 A normal sauna lamp with a Light Bulb is not suitable for me.
-I build up a lamp with WS2812 LEDs. The biggest problem is the heat. Sauna with 100°C and LEDs don't work together.
+The biggest problem is the heat. Sauna with 100°C and LEDs don't work together.
+I build up a lamp with WS2812 LEDs. The lamp is like a infinite lamp build.
 The lamp dissipates the heat with a big aluminum plate mounted on the outside wood. To the sauna is a acrylic "window". With the temperature sensor in the lamp, it is possible to switch off the lamp bevor the LEDs overheat.
 
 # Software
