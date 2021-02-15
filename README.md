@@ -1,4 +1,4 @@
-# Attention work in progress
+#Attention it is very dangerous to work with line voltage! You should know what you do!
 
 # Sauna-controller
 Sauna Controller with esp8266 and [ESPHome](https://esphome.io/) for a integration in [Home Assistant](https://www.home-assistant.io/) 
