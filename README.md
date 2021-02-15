@@ -57,8 +57,11 @@ For safety it is very important to have a thermal fuse in the sauna. If the cont
 The rest of the controller is very simple. One DS18B20 to measure the temperature and that’s it. The rest is in the ESP8266 (of course a ESP32 is also possible). See the Software part.
 You get at this point a sauna controller that is more flexible than the most controller you can buy but for less money!
 But that’s to simple, there is more possible!
+
 With the door sensor you have very nice features. This is very simple with a reed contact and a magnet. The wiring is like a normal switch with the internal pull up.
 For about 1€ you can measure different temperatures in the sauna or in the room.
+![door sensor](images/IMG_20210215_231138.jpg)
+
 I measure the temperature and humidity between the sauna wall and the room wall. The software calculates the dew point. In case the dew point falls below the temperature this can result in mildew. If I'll get problems, I can react bevor I get mildew.
 
 # Sauna lamp 
@@ -66,6 +69,8 @@ A normal sauna lamp with a Light Bulb is not suitable for me.
 The biggest problem is the heat. Sauna with 100°C and LEDs don't work together.
 I build up a lamp with WS2812 LEDs. The lamp is like a infinite lamp build.
 The lamp dissipates the heat with a big aluminum plate mounted on the outside wood. To the sauna is a acrylic "window". With the temperature sensor in the lamp, it is possible to switch off the lamp bevor the LEDs overheat.
+
+![Sauna lamp](images/IMG_20210215_233320.jpg)
 
 # Software
 The sauna controller has the hole UI in the [Home Assistant](https://www.home-assistant.io/). In my case this is very good, so the kits can not switch the sauna on by playing in the sauna room.
@@ -75,6 +80,8 @@ The controller itself controls the temperature without Home Assistant. If Home A
 The controller regulate the heater with a PID controller. That works great, in comparison to a simple two point controller the temperature is very constant. With a simple two point controller the temperature various in the sauna is about 8°C.
 My heater make noise when it switch off and on with a two point controller. With the PID controller it is really silence.
 The PID constants are calculated with autotune. The constants are suitable for my sauna but can be optimate for different setup.
+![temperatur regulation](images/1613402990508.jpg)
+
 The controller also calculate the actual power needed for the sauna and integrate the power to the needed energy. Now it is possibly to calculate the costs for the fun ;-).
 With the sensor in the door, the timer will reset if the door is opened. That’s very cool, no need to remember to reset the timer. If you forgot to close the door, the sauna will switch off.
 I've measure different temperatures. It was not easy to build a LED lamp for the sauna and not to overheat the LEDs. With a temperature sensor in the lamp I was able to test it if the heat dissipation is enough. In the second step it was enough ;-).
