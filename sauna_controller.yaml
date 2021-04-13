@@ -10,6 +10,12 @@ esphome:
   name: $devicename
   platform: ESP8266
   board: d1_mini
+  on_boot:
+    priority: 200
+    then:
+      - climate.control:
+          id: sauna_climate
+          mode: 'OFF'
 
 wifi:
   ssid: !secret wifi_ssid
@@ -292,7 +298,7 @@ climate:
     id: sauna_climate
     name: ${user} Sauna Steuerung
     sensor: sauna_temp
-    default_target_temperature: 75 °C
+    default_target_temperature: 5°C
     #hysteresis: 1 °C
     #default_target_temperature_high: 60 °C
     heat_output: sauna_ofen_pwm
