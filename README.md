@@ -1,105 +1,97 @@
-# Attention it is very dangerous to work with line voltage! You should know what you do!
+# Attention: Working with line voltage is very dangerous! Ensure you know what you are doing!
 
 # Sauna-controller
-Sauna Controller with esp8266 and [ESPHome](https://esphome.io/) for a integration in [Home Assistant](https://www.home-assistant.io/) 
+Sauna Controller with ESP8266/ESP32 and [ESPHome](https://esphome.io/) for integration with [Home Assistant](https://www.home-assistant.io/).
 
-The big advantage you get for about 60€: a sauna controller that is awesome!
+For about 60€, you get an awesome sauna controller!
 
-The sauna controller is build up from scratch. No additional components are needed.
-The integration is done with Home Assistant. The controller itself is built around the awesome [ESPHome](https://esphome.io/).
+The sauna controller is built from scratch with no additional components needed. Integration is done with Home Assistant, and the controller itself is built around the excellent [ESPHome](https://esphome.io/).
 
-# features
-- real PID controller
-- calculate the power and energy
-- customizable
-- no cloud
-- remote access
-- expandable
-- cheap
-- reliable
-- easy to build
-- easy to use
-- open source
+# Features
+- Real PID controller
+- Power and energy calculation
+- Customizable
+- No cloud dependency
+- Remote access
+- Expandable
+- Affordable
+- Reliable
+- Easy to build
+- Easy to use
+- Open source
 
-If you find a sauna controller with more features give me a hint ;-)!
+If you find a sauna controller with more features, let me know ;-)!
 
 ![Home Assistant](images/frontpanel.PNG)
 ![Sauna Controller](images/IMG_20210213_231354.jpg)
 ![Sauna](images/IMG_20210215_214026.jpg)
 
+# Components
+Only a few components are needed:
 
-# components
-There are only a few components needed:
+1. **The brain of the Sauna Controller**: A Wemos D1 ESP8266 microcontroller running ESPHome.
 
-1. **The brain of the Sauna Controller** A Wemos D1 a ESP8266 microcontroller running ESPHome
+2. **Temperature sensors**: At least one DS18B20 to measure the temperature in the sauna. My setup includes 4 DS18B20 sensors to measure temperature at different locations (top of the sauna, lower bench, sauna controller, and sauna lamp).
 
-2. **temperature sensors** at least one DS18B20 to measure the temperature in the Sauna. In my setup there are 4 DS18B20. So I'm able to measure the temperature in different places (at the top of the Sauna, at the lower bench, in the Sauna Controller and in my fancy Sauna lamp)
+3. **Thermal fuse**: A crucial component. If something goes wrong and the heater overheats, the thermal fuse burns out and switches off the heater, cutting the voltage for the high current switches.
 
-3. **Thermal fuse** a very important thing. If something goes wrong and the heater heats the thermal fuse burns up and switch off the heater's very simple part and cuts the voltage for the high current switches
+4. **High current/voltage switch to heat the sauna**: I chose SSR relays like 3 SSR-40DA. SSR relays are wear-free and allow for easy PID controller implementation without noise.
 
-4. **a high current/voltage switch to heat the sauna with the heater** I choose a SSR relay like 3 SSR-40DA. A SSR relay is wear-free. It is easy possibility to build up a PID controller with it and without noise.
+5. **Optional door sensor**: I have a reed contact in the sauna door. If the door is open, the controller can switch off the sauna. The controller resets a timer when the door is opened, which is useful for extended sauna sessions.
 
-5. **optional door sensor** I've a reed contact in the sauna door. If the door is open the controller can switch off the sauna. The controller reset a timer when the door is opened. That is cool if you use the sauna the hole day or a longer time and the normal timer will switch off the sauna.
+6. **Optional additional sensors**: I use various other sensors to measure temperature in the room, between the sauna wall and the room wall, and humidity.
 
-6. **optional more sensors** I use different other sensors to measure the temperature in the room, between the sauna wall and the room wall including humidity.
+7. **Sauna lamp**: The controller also drives WS2812b LEDs for the sauna lamp, allowing for fun lighting effects.
 
-7. **Sauna lamp** the controller with the brain is a bit bored with only the PID controller. So another task for the controller is to drive WS2812b LEDs for the sauna lamp. It can do funny effects.
+8. **Junction box, cables, and other small components**.
 
-8. **junction box cables and so on** there are many other small things
+# System
+!Attention! Working with line voltage is very dangerous! Ensure you know what you are doing!
 
-# System 
-!Attention! it is very dangerous to work with line voltage! You should know what you do!
-The heart of a sauna is of course the heater. The most commonly used heater in Europe use 3 phase and have a power >3kW. The current is <16A. I normal switch for 3 phases is enough. The SSR-40DA even the cheep copies fit very well. The most SSR-40DA switch not at 3.3V even if the control LEDs switch on (it took me 2h to figure it out and fix it...). With a simple NPN transistor the three SSR-40DA get 5V control voltage and switch correct. I mounted the SSR-40DA on an aluminum plate and for testing I measure the temperature of the plate. In the junction box the temperature is about 50°C with my 7.5kW heater during the heating phase, that’s okay.
-I have thought how to switch the heater, but in my opinion the best way is to switch the 3 phases together. The dissipation in the cable is in this case the lowest.
-The "PWM" has a long time with a period of about 60s and the SSR-40DA no switching wear.
-For safety it is very important to have a thermal fuse in the sauna. If the controller hangs or another bug the sauna can overheat. This can lead to a fire! I use a thermal fuse with 120°C in the control voltage for the SSR-40DA.
+The heart of a sauna is, of course, the heater. Most commonly used heaters in Europe use 3-phase power and have a power rating of over 3kW, with a current of less than 16A. A normal switch for 3 phases is sufficient. The SSR-40DA, even the cheap copies, work well. Most SSR-40DA relays do not switch at 3.3V, even if the control LEDs turn on. With a simple NPN transistor, the three SSR-40DA relays get 5V control voltage and switch correctly. I mounted the SSR-40DA on an aluminum plate and tested the temperature of the plate. In the junction box, the temperature is about 50°C with my 7.5kW heater during the heating phase, which is acceptable.
 
-The rest of the controller is very simple. One DS18B20 to measure the temperature and that’s it. The rest is in the ESP8266 (of course a ESP32 is also possible). See the Software part.
-You get at this point a sauna controller that is more flexible than most controllers you can buy but for less money!
-But that’s too simple, even more is possible!
+I decided to switch the heater's 3 phases together for the lowest cable dissipation. The "PWM" has a long period of about 60 seconds, and the SSR-40DA relays have no switching wear. For safety, it is crucial to have a thermal fuse in the sauna. If the controller hangs or another bug occurs, the sauna can overheat, potentially leading to a fire. I use a thermal fuse with a 120°C rating in the control voltage for the SSR-40DA.
 
-With the door sensor you have very nice features. This is very simple with a reed contact and a magnet. The wiring is like a normal switch with the internal pull up.
-For about 1€ you can measure different temperatures in the sauna or in the room.
+The rest of the controller is very simple. One DS18B20 measures the temperature, and that's it. The rest is handled by the ESP8266 (an ESP32 is also possible). See the Software section for more details. This setup provides a sauna controller that is more flexible than most commercial controllers, but for less money!
+
+With the door sensor, you get additional features. A reed contact and magnet make it simple to wire like a normal switch with an internal pull-up. For about 1€, you can measure different temperatures in the sauna or the room.
+
 ![door sensor](images/IMG_20210215_231138.jpg)
 
-I measure the temperature and humidity between the sauna wall and the room wall. The software calculates the dew point. In case the dew point falls below the temperature this can result in mildew. If I'll get problems, I can react before I get mildew.
+I measure the temperature and humidity between the sauna wall and the room wall. The software calculates the dew point. If the dew point falls below the temperature, it can result in mildew. This allows me to react before mildew forms.
 
-# Sauna lamp 
-A normal sauna lamp with a Light Bulb is obviously not suitable for me.
-The biggest problem is the heat. Sauna with 100°C and LEDs don't work together.
-I build a lamp with WS2812 LEDs. The lamp is like a infinite lamp.
-The lamp dissipates the heat with a big aluminum plate mounted on the outside wood. To the sauna is a acrylic "window". With the temperature sensor in the lamp, it is possible to switch off the lamp bevor the LEDs overheat.
+# Sauna lamp
+A normal sauna lamp with a light bulb is not suitable for me. The biggest problem is the heat. Saunas with 100°C and LEDs don't work well together. I built a lamp with WS2812 LEDs, designed like an infinity lamp. The lamp dissipates heat with a large aluminum plate mounted on the outside wood. An acrylic "window" faces the sauna. With a temperature sensor in the lamp, it is possible to switch off the lamp before the LEDs overheat.
 
 ![Sauna lamp](images/IMG_20210215_233320.jpg)
 
 # Software
-The sauna controller has the hole UI in the [Home Assistant](https://www.home-assistant.io/). In my case this is very good, so the kids can not switch the sauna on by playing in the sauna room.
-The software that runs on the controller is build with the awesome [ESPHome](https://esphome.io/). The configuration is in the sauna_controller.yaml. It is easy customizable to another setup.
-In the Home Assistant frontend you can set temperature, switch the sauna on and get a notification if the sauna is ready.
-The controller itself controls the temperature without Home Assistant. If Home Assistant crashes, the sauna will not overheat.
-The controller regulate the heater with a PID controller. That works great, in comparison to a simple two point controller the temperature is very constant. With a simple two point controller the temperature variation in the sauna is about 8°C.
-My heater makes noise when it switches off and on with a two point controller. With the PID controller it is practically noisless.
-The PID constants are calculated with autotune. The constants are suitable for my sauna but can be optimate for a different setup.
-![temperatur regulation](images/1613402990508.jpg)
+The sauna controller's entire UI is in [Home Assistant](https://www.home-assistant.io/). This is very convenient, as it prevents kids from accidentally turning on the sauna while playing in the sauna room. The software running on the controller is built with the excellent [ESPHome](https://esphome.io/). The configuration is in the sauna_controller.yaml file and is easily customizable for different setups.
 
-The controller also calculates the actual power needed for the sauna and integrates the power for the needed energy. Now it is possible to calculate the costs for the fun ;-).
-With the sensor in the door, the timer will reset if the door is opened. That’s very cool, no need to remember to reset the timer. If you forgot to close the door, the sauna will switch off.
-I can measure different temperatures. It was not easy to build a LED lamp for the sauna and not to overheat the LEDs. With a temperature sensor in the lamp I was able to test it if the heat dissipation is enough. The second it was enough ;-).
+In the Home Assistant frontend, you can set the temperature, switch the sauna on, and receive notifications when the sauna is ready. The controller itself manages the temperature without Home Assistant. If Home Assistant crashes, the sauna will not overheat. The controller regulates the heater with a PID controller, which works great. Compared to a simple two-point controller, the temperature is very stable. With a two-point controller, the temperature variation in the sauna is about 8°C. My heater makes noise when it switches off and on with a two-point controller, but with the PID controller, it is practically noiseless.
 
-I've tried my best to comment the easy yaml config file, so Chat it's easy to understand. It can be a good starting point for your own implementation.
+The PID constants are calculated with autotune. The constants are suitable for my sauna but can be optimized for different setups.
 
-# circuit diagram
-This is very easy. Normally it is not needed and the ESPHome yaml file is enough. 
-But for reference the circuit diagram:
+![temperature regulation](images/1613402990508.jpg)
+
+The controller also calculates the actual power needed for the sauna and integrates the power for the total energy consumption. This allows you to calculate the costs for your sauna sessions ;-).
+
+With the door sensor, the timer resets if the door is opened. This is very convenient, as you don't need to remember to reset the timer. If you forget to close the door, the sauna will switch off.
+
+I can measure different temperatures. Building a LED lamp for the sauna without overheating the LEDs was challenging. With a temperature sensor in the lamp, I was able to test if the heat dissipation was sufficient. The second attempt was successful ;-).
+
+I've tried my best to comment the easy YAML config file, so it's easy to understand. It can be a good starting point for your own implementation.
+
+# Circuit diagram
+This is very simple. Normally, it is not needed, and the ESPHome YAML file is sufficient. But for reference, here is the circuit diagram:
+
 ![circuit diagram](Sauna_controller_Schaltplan.png)
 
-# things to do
-With the door contact it would be possible to messure the time for a sauna Sauna passage. A simulated sand clock with LEDs like WS2812 would be nice.
-Find more things to automate, switch off the room climate if the sauna is running.
-etc.
+# Things to do
+With the door contact, it would be possible to measure the time for a sauna session. A simulated sand clock with LEDs like WS2812 would be nice. Find more things to automate, such as switching off the room climate if the sauna is running, etc.
 
 # Inspiration
-This projekt was heavily inspired by: 
+This project was heavily inspired by:
 
 https://github.com/bastiaanterhorst/sauna-automation
 
