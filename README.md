@@ -1,3 +1,20 @@
+# Sauna-controller
+
+<!-- Kurzbeschreibung -->
+Ein faszinierendes, innovatives Projekt, das mit ESPHome den ultimativen Sauna-Controller realisiert – smart, zuverlässig und absolut amazing!
+
+<!-- Inhaltsverzeichnis -->
+- [Attention](#attention-working-with-line-voltage-is-very-dangerous-ensure-you-know-what-you-are-doing)
+- [Sauna-controller](#sauna-controller)
+- [Features](#features)
+- [Components](#components)
+- [System](#system)
+- [Sauna lamp](#sauna-lamp)
+- [Software](#software)
+- [Circuit diagram](#circuit-diagram)
+- [Things to do](#things-to-do)
+- [Inspiration](#inspiration)
+
 # Attention: Working with line voltage is very dangerous! Ensure you know what you are doing!
 
 # Sauna-controller
@@ -29,7 +46,7 @@ If you find a sauna controller with more features, let me know ;-)!
 # Components
 Only a few components are needed:
 
-1. **The brain of the Sauna Controller**: A Wemos D1 ESP8266 microcontroller running ESPHome.
+1. **The brain of the Sauna Controller**: A Wemos D1 ESP8266 or any other device running ESPHome.
 
 2. **Temperature sensors**: At least one DS18B20 to measure the temperature in the sauna. My setup includes 4 DS18B20 sensors to measure temperature at different locations (top of the sauna, lower bench, sauna controller, and sauna lamp).
 
