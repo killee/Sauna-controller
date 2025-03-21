@@ -1,0 +1,194 @@
+substitutions:
+  devicename: "Sauna Controller"
+  internalname: "sauna-controller"
+  #power of the sauna oven kw
+  power_of_sauna_oven: "6.50"
+
+esphome:
+  name: "${internalname}"
+  on_boot:
+    priority: 200
+    then:
+      - climate.control:
+          id: sauna_climate
+          mode: 'OFF'
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+
+one_wire:
+  - platform: gpio
+    pin: 23
+
+globals:
+  - id: sauna_runtime
+    type: int
+    restore_value: no
+    initial_value: '0'  # In seconds
+
+sensor:
+  # Change the addresses below according to the addresses present in your controller
+  - platform: dallas
+    address: 0x523c01d607567d28
+    name: "${devicename} Heatsink"
+    id: heatsink_temp
+    entity_category: diagnostic
+
+  - platform: dallas
+    address: 0x4d0120633b2fc328
+    name: "${devicename} Above Oven"
+    id: sauna_temp
+
+  - platform: dallas
+    address: 0x623c01d607fa4728
+    name: "${devicename} Room"
+
+  - platform: template
+    name: "Timer ${devicename}"
+    id: sauna_timer
+    unit_of_measurement: s
+    accuracy_decimals: 0
+    lambda: |-
+      return id(sauna_runtime);
+
+  - platform: pid
+    climate_id: sauna_climate
+    name: "Sauna Current Power ${devicename}"
+    type: HEAT
+    filters:
+      - multiply: ${power_of_sauna_oven}
+      - multiply: 0.01
+    unit_of_measurement: 'kW'
+    id: power_of_sauna
+    force_update: true
+
+  - platform: integration
+    name: "Sauna Energy ${devicename}"
+    sensor: power_of_sauna
+    time_unit: h
+    restore: true
+    state_class: total_increasing
+    device_class: energy
+
+binary_sensor:
+  - platform: template
+    name: "${devicename} Sensor Error"
+    id: sauna_sensor_failure
+    lambda: |-
+      if (isnan(id(sauna_temp).state) || !id(sauna_temp).has_state()) {
+        return true;
+      } else {
+        return false;
+      }
+
+climate:
+  - platform: pid 
+    id: sauna_climate
+    name: "Sauna Control ${devicename}"
+    sensor: sauna_temp
+    default_target_temperature: 5°C
+    heat_output: sauna_ofen_pwm
+    # Set the PID parameters for your sauna these are just examples suitable for my sauna with 6.5kW and 5.8m³
+    # You can use the PID Tuner in the ESPHome to find the best values for your sauna
+    # the results are amazing! Try it out!
+    control_parameters:
+      kp: 0.19181
+      ki: 0.00015
+      kd: 75.09859
+
+    visual:
+      min_temperature: 10 °C
+      max_temperature: 100 °C
+      temperature_step: 1 °C
+
+light:
+  - platform: binary
+    name: "Light in ${devicename}"
+    output: sauna_light
+
+switch:
+  - platform: gpio
+    pin: 27
+    name: "${devicename} Phase 1"
+    id: phase1
+    restore_mode: ALWAYS_OFF
+    entity_category: diagnostic
+    inverted: true
+  - platform: gpio
+    pin: 26
+    name: "${devicename} Phase 2"
+    id: phase2
+    restore_mode: ALWAYS_OFF
+    entity_category: diagnostic
+    inverted: true
+  - platform: gpio
+    pin: 25
+    name: "${devicename} Phase 3"
+    id: phase3
+    restore_mode: ALWAYS_OFF
+    entity_category: diagnostic
+    inverted: true
+
+output:
+  - platform: slow_pwm
+    id: sauna_ofen_pwm
+    period: 60s
+    turn_off_action:
+      - switch.turn_off: phase1
+      - switch.turn_off: phase2
+      - switch.turn_off: phase3
+    turn_on_action:
+      - switch.turn_on: phase1
+      - switch.turn_on: phase2
+      - switch.turn_on: phase3
+
+  - platform: gpio
+    pin: GPIO16
+    id: sauna_light
+    inverted: true
+
+interval:
+  - interval: 30s
+    then:
+      - if:
+          condition:
+            or:
+              - lambda: "return isnan(id(sauna_temp).state);"
+              - lambda: "return !id(sauna_temp).has_state();"
+          then:
+            - climate.control:
+                id: sauna_climate
+                mode: 'OFF'
+            - lambda: |-
+                id(sauna_runtime) = 0;
+          else:
+            - if:
+                condition:
+                    lambda: "return id(sauna_climate).mode == climate::CLIMATE_MODE_HEAT;"                
+                then:
+                  - lambda: |-
+                      id(sauna_runtime) += 30;
+                else:
+                  - lambda: |-
+                      id(sauna_runtime) = 0;
+
+      - if:
+          condition:
+            lambda: "return id(sauna_runtime) >= (6*60*60);"
+          then:
+            - climate.control:
+                id: sauna_climate
+                mode: 'OFF'
+            - lambda: |-
+                id(sauna_runtime) = 0;
+
