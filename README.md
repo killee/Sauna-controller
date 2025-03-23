@@ -12,13 +12,13 @@ A fascinating and innovative project that implements a powerful sauna controller
 - [Sauna lamp](#sauna-lamp)
 - [Software](#software)
 - [Circuit diagram](#circuit-diagram)
-- [Things to do][#Things to do]
-- [Inspiration](#inspiration)
+- [Things to do](#Things-to-do)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Repository Structure](#repository-structure)
 - [Contributing](#contributing)
-- [License](#license)
+- [Inspiration](#inspiration)
+
 
 # Attention: Working with line voltage is very dangerous! Ensure you know what you are doing!
 
