@@ -1,7 +1,7 @@
 # Sauna-controller
 
 <!-- Kurzbeschreibung -->
-Ein faszinierendes, innovatives Projekt, das mit ESPHome den ultimativen Sauna-Controller realisiert – smart, zuverlässig und absolut amazing!
+A fascinating and innovative project that implements a powerful sauna controller using ESPHome – smart, reliable, and highly impressive.
 
 <!-- Inhaltsverzeichnis -->
 - [Attention](#attention-working-with-line-voltage-is-very-dangerous-ensure-you-know-what-you-are-doing)
@@ -12,8 +12,13 @@ Ein faszinierendes, innovatives Projekt, das mit ESPHome den ultimativen Sauna-C
 - [Sauna lamp](#sauna-lamp)
 - [Software](#software)
 - [Circuit diagram](#circuit-diagram)
-- [Things to do](#things-to-do)
+- [Things to do][#Things to do]
 - [Inspiration](#inspiration)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Repository Structure](#repository-structure)
+- [Contributing](#contributing)
+- [License](#license)
 
 # Attention: Working with line voltage is very dangerous! Ensure you know what you are doing!
 
@@ -104,15 +109,44 @@ This is very simple. Normally, it is not needed, and the ESPHome YAML file is su
 
 ![circuit diagram](Sauna_controller_Schaltplan.png)
 
+## Circuit Diagram Explanation
+1. **ESP8266/ESP32**: The brain of the controller, running ESPHome.
+2. **SSR Relays (SSR-40DA)**: Used to switch the high current needed for the sauna heater. Controlled by the ESP8266/ESP32 through a transistor to provide the necessary control voltage.
+3. **Temperature Sensors (DS18B20)**: Placed at various points to monitor the temperature inside the sauna (one for the pid at the seeling), optinal on the heatsink, and optinal in the room.
+4. **Thermal Fuse**: !IMPORTANT! Provides a safety mechanism to cut off power if the temperature exceeds a safe limit.
+5. **Door Sensor**: Optinal a reed switch that detects if the sauna door is open or closed.
+6. **Sauna Lamp (WS2812 LEDs)**: Provides lighting inside the sauna with fun effects, controlled by the ESP8266/ESP32.
+7. **Power Supply**: Provides the necessary power to the ESP8266/ESP32 and other components.
+
 # Things to do
 With the door contact, it would be possible to measure the time for a sauna session. A simulated sand clock with LEDs like WS2812 would be nice. Find more things to automate, such as switching off the room climate if the sauna is running, etc.
+
+
+Very nice projects!
+
+## Installation
+- Flash the firmware with [ESPHome](https://esphome.io/).
+- Connect your ESP8266/ESP32 device according to the pin mapping.
+- Follow the on-screen instructions from Home Assistant and adjust settings in the YAML files as needed.
+
+## Usage
+- Integrate the controller with Home Assistant for easy control.
+- Use the web interface to set target temperatures, view sensor status, and monitor energy consumption.
+- The minimal version (sauna_simpler.yaml) is great for a lean setup, while sauna_controller.yaml offers extra features if you want advanced functionality.
+
+## Repository Structure
+- README.md – Project overview and documentation.
+- sauna_simpler.yaml – Minimal configuration for essential operation.
+- sauna_controller.yaml – A more feature-rich configuration with extra sensors and extras.
+- images/ – Contains photos and the circuit diagram.
+
+## Contributing
+We welcome improvements!  
+If you have suggestions or bug fixes, please open an issue or a pull request.
 
 # Inspiration
 This project was heavily inspired by:
 
-https://github.com/bastiaanterhorst/sauna-automation
-
+https://github.com/bastiaanterhorst/sauna-automation  
 https://github.com/quicklywilliam/saunakit
-
-Very nice projects!
 

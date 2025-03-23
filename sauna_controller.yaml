@@ -1,3 +1,7 @@
+# Explanation:
+# This YAML file is the minimalist approach - just the essentials to keep your sauna controller running.
+# No unnecessary extras, simple and uncomplicated. Just the way you need it sometimes.
+
 substitutions:
   devicename: saunakille
   user: Kille

@@ -1,3 +1,6 @@
+# Explanation:
+# This YAML file is the minimalist approach - just the essentials to keep your sauna controller running.
+
 substitutions:
   devicename: "Sauna Controller"
   internalname: "sauna-controller"
