@@ -50,7 +50,7 @@ ota:
 #  port: 80
 
 #Pinmapping
-#D0 Sauna oven -> move to D7!
+#D7 Sauna oven (GPIO13 - safe, LOW during boot)
 #D1 SCL
 #D2 SDA
 #D3 dallas
@@ -68,12 +68,12 @@ globals:
     restore_value: no
     initial_value: '0'
 
-#the SSR relays for the sauna oven. They are switchted with a BC847 
+#the SSR relays for the sauna oven. They are switched with a BC847 
 output:
   - platform: slow_pwm
-    pin: D0
+    pin: D7
     id: sauna_ofen_pwm
-    period: 60s    
+    period: 60s
 
 switch:
   - platform: template
