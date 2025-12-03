@@ -118,6 +118,9 @@ This is very simple. Normally, it is not needed, and the ESPHome YAML file is su
 6. **Sauna Lamp (WS2812 LEDs)**: Provides lighting inside the sauna with fun effects, controlled by the ESP8266/ESP32.
 7. **Power Supply**: Provides the necessary power to the ESP8266/ESP32 and other components.
 
+### Important Safety Note for ESP8266
+**⚠️ GPIO Pin Selection**: When using ESP8266 (e.g., Wemos D1 Mini), avoid using GPIO16 (D0) for heater control. GPIO16 is HIGH during boot, which could cause the heater to turn on during startup or if the device hangs. Use GPIO13 (D7) or other safe pins that are LOW during boot for critical safety components like heaters.
+
 # Things to do
 With the door contact, it would be possible to measure the time for a sauna session. A simulated sand clock with LEDs like WS2812 would be nice. Find more things to automate, such as switching off the room climate if the sauna is running, etc.
 
