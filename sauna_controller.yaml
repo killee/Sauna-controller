@@ -68,7 +68,7 @@ globals:
     restore_value: no
     initial_value: '0'
 
-#the SSR relays for the sauna oven. They are switchted with a BC847 
+#the SSR relays for the sauna oven. They are switched with a BC847 
 output:
   - platform: slow_pwm
     pin: D7
